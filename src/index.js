@@ -5,7 +5,7 @@ const body = DOC.querySelector('body')
 
 const Anyppt = function(options = {}) {
   Object.assign(this, {
-    bodyClassName: 'anyppt-body',
+    bodyClassName: 'anyppt-show',
     className: 'anyppt',
     id: 'J-anyppt',
     vdom: [],
@@ -66,6 +66,7 @@ Anyppt.prototype = {
       container.setAttribute('id', this.id)
       container.setAttribute('class', this.className)
       container.innerHTML = [
+        '<span class="anyppt-close"></span>',
         '<div class="anyppt-content">',
         ...this.vdom.map((el, idx) => `<section class="anyppt-page" ${idx === currentPage ? 'style="display:block;"' : ''}>${el.html}</section>`),
         '</div>',
@@ -118,6 +119,13 @@ Anyppt.prototype = {
       const target = e.target
       if (target.tagName === 'I') {
         me.go(target.dataset.role)
+      }
+    })
+
+    me.dom.container.addEventListener('click', function(e) {
+      const target = e.target
+      if (target.classList.contains('anyppt-close')) {
+        me.hide()
       }
     })
 
