@@ -1,0 +1,72 @@
+.anyppt {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  color: #fff;
+  text-align: center;
+  background: #222;
+  overflow: hidden;
+}
+
+.anyppt-body {
+  overflow: hidden;
+}
+
+.anyppt-content {
+  height: 100%;
+  font-size: 18px;
+}
+
+.anyppt-content p {
+  line-height: 26px;
+}
+
+.anyppt-content pre {
+  text-align: left;
+}
+
+.anyppt .anyppt-page {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 200px;
+  max-width: 90%;
+  max-height: 80%;
+  transform: translate3d(-50%, -50%, 0);
+  overflow: auto;
+}
+.anyppt .anyppt-page p {
+  text-align: left;
+}
+
+.anyppt .anyppt-controller {
+  position: absolute;
+  right: 36px;
+  bottom: 36px;
+}
+.anyppt .anyppt-controller i {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 6px solid #fff;
+  border-radius: 6px;
+  transform: rotate(45deg) scale(.9);
+  cursor: pointer;
+  opacity: .8;
+  transition: opacity, transform;
+}
+.anyppt .anyppt-controller i:hover {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+.anyppt .anyppt-controller .anyppt-back {
+  border-top-width: 0;
+  border-right-width: 0;
+}
+.anyppt .anyppt-controller .anyppt-forward {
+  border-left-width: 0;
+  border-bottom-width: 0;
+}
