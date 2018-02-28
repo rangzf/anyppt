@@ -10,7 +10,8 @@
     body {
       padding: 36px 0 0;
     }
-    .show-ppt {
+
+    .ppt-trigger {
       position: fixed;
       left: 0;
       top: 0;
@@ -21,9 +22,17 @@
 </head>
 
 <body>
-  <button class="show-ppt">PPT</button>
+  <button class="ppt-trigger">PPT</button>
   <article>
     <h1>你好</h1>
+    <img src="https://casper.ghost.org/v1.0.0/images/team.jpg" alt="" width="500" />
+    <header class="hd">
+      <h2 class="tit">移动前端系列——websocket实时互动小游戏</h2>
+      <p class="create-info">&nbsp;In
+        <span>网页重构</span> on 2014-12-09 14:54:36 by
+        <span>鬼爪手</span>
+      </p>
+    </header>
     <div class="kg-card-markdown">
       <p>Ghost has a single, powerful organisational taxonomy, called tags.</p>
       <p>It doesn't matter whether you want to call them categories, tags, boxes, or anything else. You can think of Ghost tags
@@ -85,7 +94,8 @@
   </article>
   <script src="../dist/anyppt.js"></script>
   <script>
-    document.querySelector('.show-ppt').addEventListener('click', function () {
+    // new Anyppt()
+    document.querySelector('.ppt-trigger').addEventListener('click', function () {
       new Anyppt()
     })
   </script>
