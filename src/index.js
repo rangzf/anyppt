@@ -4,6 +4,7 @@ import './theme.css'
 const WIN = window
 const DOC = document
 const body = DOC.querySelector('body')
+const reg_hash = /anyppt=(\d+)/
 
 const Anyppt = function(options = {}) {
   Object.assign(this, {
@@ -64,9 +65,8 @@ Anyppt.prototype = {
       body.removeChild(container)
     }
     container = document.createElement('div')
-    let currentPage = location.hash.slice(1)
-    currentPage = isNaN(currentPage) ? 0 : parseInt(currentPage)
-
+    let currentPage = location.hash.match(reg_hash)
+    currentPage = !currentPage ? 0 : parseInt(currentPage[1])
     this.currentPage = currentPage
 
     container.setAttribute('id', this.id)
@@ -114,8 +114,6 @@ Anyppt.prototype = {
 
     this.currentPage = currentPage
 
-    location.hash = currentPage
-
     pages[this.currentPage].classList.add('anyppt-page-show')
 
     this.update()
@@ -124,6 +122,10 @@ Anyppt.prototype = {
 
   // put some article relative things here
   update() {
+    let hash = location.hash
+    hash = reg_hash.test(hash) ? hash.replace(/anyppt=\d+/, 'anyppt=' + this.currentPage) : hash + '?anyppt=' + this.currentPage
+    
+    location.hash = hash
     this.dom.progress.style.width = (this.currentPage + 1) / this.pageNum * 100 + '%'
   },
 

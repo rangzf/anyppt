@@ -1,7 +1,16 @@
+.anyppt {
+  color: #fff;
+}
+
 .anyppt .anyppt-progress {
   color: #e7ad52;
 }
 
 .anyppt .anyppt-progress-inner {
   background: currentColor;
+}
+
+.anyppt .anyppt-close,
+.anyppt .anyppt-controller i {
+  border-color: #fff;
 }
