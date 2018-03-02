@@ -1,175 +1,307 @@
-import './style.css'
-import './theme.css'
+require('./style.scss')
+require('./theme.scss')
 
 const WIN = window
 const DOC = document
-const body = DOC.querySelector('body')
+const body = DOC.body
+
 const reg_hash = /anyppt=(\d+)/
+const bodyClassName = 'anyppt-show'
+const className = 'anyppt'
+const id = 'J-anyppt'
+const wordsPerPage = 366
 
-const Anyppt = function(options = {}) {
-  Object.assign(this, {
-    bodyClassName: 'anyppt-show',
-    className: 'anyppt',
-    id: 'J-anyppt',
-    vdom: [],
-    el: options.el || document.querySelector('article'),
-    currentPage: 0,
-    dom: {
-      container: null,
-      pages: null,
-      controller: null
-    }
-  })
+let vdom = []
+let el = null
+let current = 0
+let pagesNum
+let dom = {}
 
-  this.init()
+function create(options = {}) {
+  el = options.el || document.querySelector('article')
+  vdom = []
+  getvdom()
+  render()
+
+  return this
 }
 
-Anyppt.prototype = {
-  constructor: Anyppt,
+function walk(nodes) {
+  ;[].forEach.call(nodes, node => {
+    try {
+      const nodeType = node.nodeType
 
-  init() {
-    if (!this.el) return
-    this.getStructure()
-    this.render()
-    this.bindEvent()
-  },
+      const isText = nodeType === 3
+      if ((isText && /^\s+$/g.test(node.nodeValue)) || nodeType === 8) return
 
-  getStructure() {
-    const el = this.el
-
-    const children = el.children
-
-    this.walk(children)
-    console.log(this.vdom)
-  },
-
-  walk(children) {
-    const vdom = this.vdom
-    ;[].forEach.call(children, el => {
-      const tagname = el.tagName.toLowerCase()
-      // end tag
-      if (['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'i', 'em', 'strong', 'mark', 'pre', 'img', 'header'].indexOf(tagname) > -1) {
+      const tagname = isText ? 'span' : node.tagName.toLowerCase()
+      if (['div', 'section'].indexOf(tagname) > -1) {
+        walk(node.childNodes)
+      } else {
         vdom.push({
           tagname,
-          html: el.outerHTML
+          html: isText ? `<span>${node.nodeValue}</span>` : node.outerHTML,
+          length: isText ? node.length : node.innerText.length,
+          children: []
         })
-      } else {
-        this.walk(el.children)
       }
-    })
-  },
-
-  render() {
-    let container = document.querySelector(`#${this.id}`)
-    if (container) {
-      body.removeChild(container)
+    } catch (e) {
+      console.err(e, node)
     }
-    container = document.createElement('div')
-    let currentPage = location.hash.match(reg_hash)
-    currentPage = !currentPage ? 0 : parseInt(currentPage[1])
-    this.currentPage = currentPage
+  })
+}
 
-    container.setAttribute('id', this.id)
-    container.setAttribute('class', this.className)
-    container.innerHTML = [
-      // close
-      '<span class="anyppt-close"></span>',
-      // ppt pages
-      '<div class="anyppt-content">',
-      ...this.vdom.map((el, idx) => `<section class="anyppt-page ${idx === currentPage ? 'anyppt-page-show' : ''}">${el.html}</section>`),
-      '</div>',
-      // controller
-      '<div class="anyppt-controller"><i class="anyppt-back" data-role="back"></i><i class="anyppt-forward" data-role="forward"></i></div>',
-      // progress bar
-      '<div class="anyppt-progress"><i class="anyppt-progress-inner"></i></div>'
-    ].join('')
+function getvdom() {
+  const nodes = el.childNodes
 
-    body.appendChild(container)
+  walk(nodes)
+  console.log(vdom)
 
-    this.dom = {
-      ...this.dom,
-      container,
-      controller: container.querySelector('.anyppt-controller'),
-      pages: container.querySelectorAll('.anyppt-page'),
-      progress: container.querySelector('.anyppt-progress-inner')
+  let currentHead = null
+  let currentHeadIdx
+  let currentDetail = {
+    content: [],
+    words: 0,
+    tovdom() {
+      return this.content.length
+        ? [
+            {
+              tagname: 'div',
+              html: this.content.map(dom => dom.html).join(''),
+              parent: currentHeadIdx,
+              length: this.words
+            }
+          ]
+        : []
+    },
+    reset() {
+      this.content = []
+      this.words = 0
     }
+  }
+  const vdomLen = vdom.length
 
-    this.pageNum = this.dom.pages.length
+  vdom = vdom.reduce((results, dom, idx) => {
+    // header
+    if (/^h[1,2]$/.test(dom.tagname)) {
+      currentHead && (currentHead.children = [...currentHead.children, ...currentDetail.tovdom()])
 
-    this.show()
-  },
+      currentHead = dom
+      currentHeadIdx = idx
+      results.push(currentHead)
 
-  go(dir) {
-    const { container, pages, progress } = this.dom
-    const pageNum = this.pageNum
-    let currentPage = this.currentPage
-
-    pages[currentPage].classList.remove('anyppt-page-show')
-
-    if (dir === 'back') {
-      currentPage = --currentPage < 0 ? 0 : currentPage
+      currentDetail.reset()
     } else {
-      currentPage = ++currentPage >= pageNum ? pageNum - 1 : currentPage
-    }
-
-    this.currentPage = currentPage
-
-    pages[this.currentPage].classList.add('anyppt-page-show')
-
-    this.update()
-    console.log(this.currentPage)
-  },
-
-  // put some article relative things here
-  update() {
-    let hash = location.hash
-    hash = reg_hash.test(hash) ? hash.replace(/anyppt=\d+/, 'anyppt=' + this.currentPage) : hash + '?anyppt=' + this.currentPage
-    
-    location.hash = hash
-    this.dom.progress.style.width = (this.currentPage + 1) / this.pageNum * 100 + '%'
-  },
-
-  show() {
-    body.classList.add(this.bodyClassName)
-    this.update()
-  },
-
-  bindEvent() {
-    const me = this
-
-    const { container, controller } = me.dom
-
-    container.addEventListener('click', containerClickHandler)
-    DOC.addEventListener('keydown', keydownHandler)
-
-    function containerClickHandler(e) {
-      const target = e.target
-      if (target.classList.contains('anyppt-close')) {
-        hide()
-      }
-
-      if (controller.contains(target) && target.tagName === 'I') {
-        me.go(target.dataset.role)
+      // single page
+      if (['img', 'header', 'h3'].indexOf(dom.tagname) > -1) {
+        currentHead.children = [
+          ...currentHead.children,
+          ...currentDetail.tovdom(),
+          {
+            ...dom,
+            parent: currentHeadIdx
+          }
+        ]
+        currentDetail.reset()
+      } else {
+        currentDetail.words += dom.length
+        if (currentDetail.words <= wordsPerPage) {
+          currentDetail.content.push(dom)
+        } else {
+          currentHead.children = [...currentHead.children, ...currentDetail.tovdom()]
+          currentDetail.reset()
+          currentDetail.content.push(dom)
+          currentDetail.words += dom.length
+        }
       }
     }
 
-    function keydownHandler(e) {
-      const keyCode = e.keyCode
-      if ([37, 39].indexOf(keyCode) > -1) {
-        me.go({ 37: 'back', 39: 'forward' }[keyCode])
-      }
-
-      if (keyCode === 27) {
-        hide()
-      }
+    // from h1, lost prev msg?
+    if (!currentHead) {
+      // results.push(dom)
     }
 
-    function hide() {
-      body.classList.remove(me.bodyClassName)
-      container.removeEventListener('click', containerClickHandler)
-      DOC.removeEventListener('keydown', keydownHandler)
+    if (idx === vdomLen - 1) {
+      currentHead.children = [...currentHead.children, ...currentDetail.tovdom()]
     }
+
+    return results
+  }, [])
+}
+
+// get current page idx from hash
+function getPageIdxByHash() {
+  const current = location.hash.match(reg_hash)
+  let idx
+  return !current || (idx = parseInt(current[1])) < 0 ? 0 : idx >= pagesNum ? pagesNum - 1 : idx
+}
+
+function render() {
+  let container = document.querySelector(`#${id}`)
+  if (container) {
+    body.removeChild(container)
+  }
+  container = document.createElement('div')
+
+  container.setAttribute('id', id)
+  container.setAttribute('class', className)
+
+  // template
+  container.innerHTML = [
+    // close
+    '<span class="anyppt-close"></span>',
+    // ppt pages
+    '<div class="anyppt-content">',
+    ...vdom.map((el, idx) =>
+      [
+        `<section class="anyppt-page">${el.html}</section>`,
+        ...el.children.map(
+          child => `<section class="anyppt-page" data-anyppt-head="${child.parent}">${child.html}</section>`
+        )
+      ].join('')
+    ),
+    '</div>',
+    // controller
+    '<div class="anyppt-controller">',
+    '  <i class="anyppt-back" data-role="37"></i>',
+    '  <span class="anyppt-progress-num"></span>',
+    '  <i class="anyppt-forward" data-role="39"></i>',
+    '</div>',
+    // progress bar
+    '<div class="anyppt-progress"><i class="anyppt-progress-inner"></i></div>'
+  ].join('')
+
+  body.appendChild(container)
+
+  const controller = container.querySelector('.anyppt-controller')
+  const pages = container.querySelectorAll('.anyppt-page')
+  dom = {
+    container,
+    controller,
+    pages,
+    progress: container.querySelector('.anyppt-progress-inner'),
+    progressNum: controller.querySelector('.anyppt-progress-num')
+  }
+
+  pagesNum = pages.length
+}
+
+function refresh() {
+  create()
+
+  return this
+}
+
+function go(dir) {
+  const { pages } = dom
+  pages[current].classList.remove('anyppt-page-show')
+
+  switch (dir) {
+    // back
+    case 37:
+    case 38:
+      current = --current < 0 ? 0 : current
+      break
+    // forward
+    case 39:
+    case 40:
+      current = ++current >= pagesNum ? pagesNum - 1 : current
+      break
+  }
+  update()
+}
+
+function update() {
+  const { progress, pages, container, progressNum } = dom
+
+  // update hash
+  let hash = location.hash
+  hash = reg_hash.test(hash) ? hash.replace(/anyppt=\d+/, 'anyppt=' + current) : hash + '?anyppt=' + current
+  location.hash = hash
+
+  const showone = container.querySelector('.anyppt-page-show')
+  showone && showone.classList.remove('anyppt-page-show')
+  pages[current].classList.add('anyppt-page-show')
+  progress.style.width = (current + 1) / pagesNum * 100 + '%'
+  progressNum.innerHTML = `${current + 1} / ${pagesNum}`
+}
+
+function dispose() {}
+
+function show() {
+  dispose()
+
+  current = getPageIdxByHash()
+  body.classList.add(bodyClassName)
+  update()
+  bindEvent()
+
+  if (process.env.NODE_ENV === 'development') {
+    const originLen = el.innerText.replace(/\s+/g, '').length
+    const nowLen = dom.container.innerText.replace(/\s+/g, '').length
+    const diff = originLen - nowLen
+    console[diff > 20 ? 'warn' : 'log'](
+      'Words diff:',
+      diff,
+      '(Original content length - Anyppt transformed content length)'
+    )
+  }
+
+  return this
+}
+
+
+let hide = function() {
+  body.classList.remove(bodyClassName)
+  dispose()
+
+  return this
+}
+
+function bindEvent() {
+  const { container, controller } = dom
+
+  container.addEventListener('click', containerClickHandler)
+  DOC.addEventListener('keydown', keydownHandler)
+  WIN.addEventListener('hashchange', hashchange)
+
+  dispose = function() {
+    container.removeEventListener('click', containerClickHandler)
+    DOC.removeEventListener('keydown', keydownHandler)
+    WIN.removeEventListener('hashchange', hashchange)
+  }
+
+  function containerClickHandler(e) {
+    const target = e.target
+    if (target.classList.contains('anyppt-close')) {
+      hide()
+    }
+
+    if (controller.contains(target) && target.tagName === 'I') {
+      go(parseInt(target.dataset.role))
+    }
+  }
+
+  function keydownHandler(e) {
+    const keyCode = e.keyCode
+    if ([37, 38, 39, 40].indexOf(keyCode) > -1) {
+      go(keyCode)
+    }
+
+    if (keyCode === 27) {
+      hide()
+    }
+  }
+
+  function hashchange() {
+    current = getPageIdxByHash()
+    update()
   }
 }
 
-WIN.Anyppt = Anyppt
+module.exports = {
+  create,
+  show,
+  hide,
+  refresh
+}

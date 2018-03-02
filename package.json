@@ -10,10 +10,14 @@
     "dev": "rimraf dist && NODE_ENV=development webpack -w",
     "build": "rimraf dist && webpack"
   },
+  "browserslist": ["ie >= 10", "ie_mob >= 10", "ff >= 30", "chrome >= 34", "safari >= 7", "opera >= 23", "ios >= 7", "android >= 4.4", "bb >= 10"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^0.28.10",
+    "node-sass": "^4.7.2",
+    "postcss-loader": "^2.1.1",
+    "sass-loader": "^6.0.6",
     "style-loader": "^0.20.2",
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9"

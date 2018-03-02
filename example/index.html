@@ -24,13 +24,16 @@
 <body>
   <button class="ppt-trigger">PPT</button>
   <article>
-    <h1>你好</h1>
+    <h1>Hello Anyppt</h1>
+    <div>hello text node
+      <a href="#">a link</a>
+    </div>
     <img src="https://casper.ghost.org/v1.0.0/images/team.jpg" alt="" width="500" />
     <header class="hd">
-      <h2 class="tit">移动前端系列——websocket实时互动小游戏</h2>
+      <h2 class="tit">header</h2>
       <p class="create-info">&nbsp;In
-        <span>网页重构</span> on 2014-12-09 14:54:36 by
-        <span>鬼爪手</span>
+        <span>Tag</span> on 2014-12-09 14:54:36 by
+        <span>rangzf</span>
       </p>
     </header>
     <div class="kg-card-markdown">
@@ -57,7 +60,7 @@
         the most importance, and some themes will only display the primary tag (the first tag in the list) by default. So
         you can add the most important tag which you want to show up in your theme, but also add a bunch of related tags
         which are less important.</p>
-      <h3>h123131232112321</h3>
+      <h3>h3 title</h3>
       <p>
         <mark>
           <strong>News</strong>, Cycling, Bart Stevens, Extreme Sports</mark>
@@ -94,9 +97,9 @@
   </article>
   <script src="../dist/anyppt.js"></script>
   <script>
-    // new Anyppt()
+    const anyppt = window.anyppt.create().show()
     document.querySelector('.ppt-trigger').addEventListener('click', function () {
-      new Anyppt()
+      anyppt.show()
     })
   </script>
 </body>

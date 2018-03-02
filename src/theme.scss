@@ -1,0 +1,20 @@
+.anyppt {
+  color: #fff;
+  .anyppt-progress {
+    color: #e7ad52;
+    .anyppt-progress-inner {
+      background: currentColor;
+    }
+  }
+  .anyppt-close,
+  .anyppt-controller i {
+    border-color: #e7ad52;
+  }
+  a {
+    color: #e7ad52;
+    transition: color .3s;
+    &:hover {
+      color: #f9a31a;
+    }
+  }
+}

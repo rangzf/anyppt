@@ -1,0 +1,149 @@
+.anyppt {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #222;
+  overflow: hidden;
+  transform: translate(0, 100%);
+  transition: transform 0.1s cubic-bezier(.05,.79,.92,.46);
+  z-index: 9999999;
+  font-family: 'Hind', sans-serif !important;
+  .anyppt-close {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 3px solid #fff;
+    border-top-width: 0;
+    border-left-width: 0;
+    transform: rotate(45deg);
+    opacity: 0.36;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .anyppt-content {
+    height: 100%;
+    font-size: 18px;
+
+    p {
+      line-height: 26px;
+    }
+  }
+
+  .anyppt-page {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    min-width: 200px;
+    max-width: 90%;
+    max-height: 80%;
+    padding: 1em 0;
+    transform: translate3d(-50%, -50%, 0);
+    overflow: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s;
+    p,
+    ul,
+    ol,
+    dl {
+      margin: 1em 0;
+    }
+    ul,
+    dl {
+      list-style-type: disc;
+    }
+    ol {
+      list-style-type: decimal;
+    }
+    ul,
+    dl,
+    ol {
+      padding-left: 1.5em;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      text-align: center;
+    }
+  }
+
+  .anyppt-page-show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .anyppt-controller {
+    position: absolute;
+    right: 36px;
+    bottom: 36px;
+    user-select: none;
+
+    .anyppt-progress-num,
+    i {
+      opacity: 0.6;
+      vertical-align: middle;
+    }
+
+    i {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 6px solid #fff;
+      border-radius: 6px;
+      transform: rotate(45deg) scale(0.9);
+      cursor: pointer;
+      transition: opacity, transform 0.3s;
+    }
+    i:hover {
+      opacity: 1;
+      transform: rotate(45deg) scale(1);
+    }
+
+    .anyppt-back {
+      border-top-width: 0;
+      border-right-width: 0;
+    }
+    .anyppt-forward {
+      border-left-width: 0;
+      border-bottom-width: 0;
+    }
+
+    .anyppt-show {
+      opacity: 0.8;
+      pointer-events: all;
+    }
+  }
+
+  .anyppt-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 3px;
+    .anyppt-progress-inner {
+      content: '';
+      display: block;
+      width: 0;
+      height: 100%;
+      transition: width 0.3s;
+    }
+  }
+}
+.anyppt-show {
+  overflow: hidden;
+  .anyppt {
+    transform: translate(0, 0);
+  }
+}
