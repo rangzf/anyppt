@@ -42,11 +42,12 @@ function walk(nodes) {
           tagname,
           html: isText ? `<span>${node.nodeValue}</span>` : node.outerHTML,
           length: isText ? node.length : node.innerText.length,
-          children: []
+          children: [],
+          single: !!(node.querySelector && node.querySelector('img'))
         })
       }
     } catch (e) {
-      console.err(e, node)
+      console.error(e, node)
     }
   })
 }
@@ -93,7 +94,7 @@ function getvdom() {
       currentDetail.reset()
     } else {
       // single page
-      if (['img', 'header', 'h3'].indexOf(dom.tagname) > -1) {
+      if (['img', 'header', 'h3'].indexOf(dom.tagname) > -1 || dom.single) {
         currentHead.children = [
           ...currentHead.children,
           ...currentDetail.tovdom(),
@@ -249,7 +250,6 @@ function show() {
 
   return this
 }
-
 
 let hide = function() {
   body.classList.remove(bodyClassName)
