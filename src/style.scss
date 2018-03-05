@@ -7,9 +7,18 @@
   background: #222;
   overflow: hidden;
   transform: translate(0, 100%);
-  transition: transform 0.1s cubic-bezier(.05,.79,.92,.46);
+  transition: transform 0.1s cubic-bezier(0.05, 0.79, 0.92, 0.46);
   z-index: 9999999;
   font-family: 'Hind', sans-serif !important;
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.6);
+  }
   .anyppt-close {
     position: absolute;
     right: 30px;
@@ -32,9 +41,20 @@
   .anyppt-content {
     height: 100%;
     font-size: 18px;
-
     p {
       line-height: 26px;
+    }
+    .anyppt-page-hd {
+      transition: transform 0.1s, top 0.1s, left 0.1s, opacity 0.3s;
+      z-index: -1;
+    }
+    .current-head {
+      transform: translate(0, 0);
+      top: 18px;
+      left: 10%;
+      opacity: 0.88;
+      z-index: 1;
+      pointer-events: all;
     }
   }
 
@@ -45,21 +65,11 @@
     min-width: 200px;
     max-width: 90%;
     max-height: 80%;
-    padding: 1em 0;
     transform: translate3d(-50%, -50%, 0);
     overflow: auto;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.18s;
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      border-radius: 5px;
-      background: rgba(0, 0, 0, .6);
-    }
     p,
     ul,
     ol,
@@ -84,6 +94,7 @@
     h4,
     h5,
     h6 {
+      margin: 0;
       text-align: center;
     }
     img {

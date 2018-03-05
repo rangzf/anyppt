@@ -59,7 +59,8 @@ function getvdom() {
   console.log(vdom)
 
   let currentHead = null
-  let currentHeadIdx
+  let currentHeadIdx = 0
+  let currentIdx = -1
   let currentDetail = {
     content: [],
     words: 0,
@@ -69,6 +70,7 @@ function getvdom() {
             {
               tagname: 'div',
               html: this.content.map(dom => dom.html).join(''),
+              idx: ++currentIdx,
               parent: currentHeadIdx,
               length: this.words
             }
@@ -88,7 +90,8 @@ function getvdom() {
       currentHead && (currentHead.children = [...currentHead.children, ...currentDetail.tovdom()])
 
       currentHead = dom
-      currentHeadIdx = idx
+      ++currentIdx
+      currentHeadIdx = currentIdx
       results.push(currentHead)
 
       currentDetail.reset()
@@ -100,6 +103,7 @@ function getvdom() {
           ...currentDetail.tovdom(),
           {
             ...dom,
+            idx: ++currentIdx,
             parent: currentHeadIdx
           }
         ]
@@ -155,7 +159,7 @@ function render() {
     '<div class="anyppt-content">',
     ...vdom.map((el, idx) =>
       [
-        `<section class="anyppt-page">${el.html}</section>`,
+        `<section class="anyppt-page ${el.children.length ? 'anyppt-page-hd' : ''}">${el.html}</section>`,
         ...el.children.map(
           child => `<section class="anyppt-page" data-anyppt-head="${child.parent}">${child.html}</section>`
         )
@@ -222,7 +226,19 @@ function update() {
 
   const showone = container.querySelector('.anyppt-page-show')
   showone && showone.classList.remove('anyppt-page-show')
-  pages[current].classList.add('anyppt-page-show')
+
+  const ndCurrent = pages[current]
+  ndCurrent.classList.add('anyppt-page-show')
+
+  // current head
+  const ndCurrentHd = pages[ndCurrent.dataset.anypptHead]
+  // no currenthead or current head has no 'current-head' classname
+  if (!ndCurrentHd || !ndCurrentHd.classList.contains('current-head')) {
+    const prevHd = container.querySelector('.current-head')
+    prevHd && prevHd.classList.remove('current-head')
+    ndCurrentHd && ndCurrentHd.classList.add('current-head')
+  }
+
   progress.style.width = (current + 1) / pagesNum * 100 + '%'
   progressNum.innerHTML = `${current + 1} / ${pagesNum}`
 }
