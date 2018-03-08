@@ -6,6 +6,7 @@ const DOC = document
 const body = DOC.body
 
 const reg_hash = /anyppt=(\d+)/
+const reg_hd = /^h[1-6]/i
 const bodyClassName = 'anyppt-show'
 const className = 'anyppt'
 const id = 'J-anyppt'
@@ -19,9 +20,11 @@ let dom = {}
 
 function create(options = {}) {
   el = options.el || document.querySelector('article')
-  vdom = []
-  getvdom()
-  render()
+  if (el) {
+    vdom = []
+    getvdom()
+    render()
+  }
 
   return this
 }
@@ -110,7 +113,8 @@ function getvdom() {
         currentDetail.reset()
       } else {
         currentDetail.words += dom.length
-        if (currentDetail.words <= wordsPerPage) {
+        // h4-6, change page
+        if (currentDetail.words <= wordsPerPage && !reg_hd.test(dom.tagname)) {
           currentDetail.content.push(dom)
         } else {
           currentHead.children = [...currentHead.children, ...currentDetail.tovdom()]
@@ -141,20 +145,21 @@ function getPageIdxByHash() {
   return !current || (idx = parseInt(current[1])) < 0 ? 0 : idx >= pagesNum ? pagesNum - 1 : idx
 }
 
+// todo: if container exists then refresh content, but not all
 function render() {
   let container = document.querySelector(`#${id}`)
   if (container) {
-    body.removeChild(container)
+    container.innerHTML = ''
+  } else {
+    container = document.createElement('div')
   }
-  container = document.createElement('div')
-
   container.setAttribute('id', id)
   container.setAttribute('class', className)
 
   // template
   container.innerHTML = [
     // close
-    '<span class="anyppt-close"></span>',
+    '<span class="anyppt-close" title="ESC"></span>',
     // ppt pages
     '<div class="anyppt-content">',
     ...vdom.map((el, idx) =>
@@ -165,6 +170,7 @@ function render() {
         )
       ].join('')
     ),
+    '  <section class="anyppt-page"><h1>Thanks</h1><br/><center class="anyppt-powered">Powered by <a href="https://github.com/rangzf/anyppt/" target="_blank">anyppt</a></center></section>',
     '</div>',
     // controller
     '<div class="anyppt-controller">',
@@ -204,12 +210,12 @@ function go(dir) {
   switch (dir) {
     // back
     case 37:
-    case 38:
+    // case 38:
       current = --current < 0 ? 0 : current
       break
     // forward
     case 39:
-    case 40:
+    // case 40:
       current = ++current >= pagesNum ? pagesNum - 1 : current
       break
   }
@@ -246,6 +252,8 @@ function update() {
 function dispose() {}
 
 function show() {
+  if (!el) return this
+
   dispose()
 
   current = getPageIdxByHash()
@@ -268,6 +276,8 @@ function show() {
 }
 
 let hide = function() {
+  if (!el) return this
+
   body.classList.remove(bodyClassName)
   dispose()
 
@@ -300,7 +310,7 @@ function bindEvent() {
 
   function keydownHandler(e) {
     const keyCode = e.keyCode
-    if ([37, 38, 39, 40].indexOf(keyCode) > -1) {
+    if ([37, 39].indexOf(keyCode) > -1) {
       go(keyCode)
     }
 
