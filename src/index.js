@@ -1,5 +1,4 @@
 require('./style.scss')
-require('./theme.scss')
 
 const WIN = window
 const DOC = document
@@ -19,7 +18,8 @@ let pagesNum
 let dom = {}
 
 function create(options = {}) {
-  el = options.el || document.querySelector('article')
+  el = options.el || document.querySelector(['article', '.content', '.article-detail'].join(','))
+
   if (el) {
     vdom = []
     getvdom()
@@ -204,49 +204,55 @@ function refresh() {
 }
 
 function go(dir) {
-  const { pages } = dom
-  pages[current].classList.remove('anyppt-page-show')
-
   switch (dir) {
     // back
     case 37:
-    // case 38:
+      // case 38:
       current = --current < 0 ? 0 : current
       break
     // forward
     case 39:
-    // case 40:
+      // case 40:
       current = ++current >= pagesNum ? pagesNum - 1 : current
       break
   }
-  update()
+  // update hash, hashchange will trigger update automaticlly
+  let hash = location.hash
+  if (reg_hash.test(hash)) {
+    if (+hash.match(reg_hash)[1] !== current) {
+      hash = hash.replace(reg_hash, 'anyppt=' + current)
+    }
+  } else {
+    hash = hash + '?anyppt=' + current
+  }
+  location.hash = hash
 }
 
+let updateInterval
 function update() {
-  const { progress, pages, container, progressNum } = dom
+  updateInterval && clearTimeout(updateInterval)
+  updateInterval = setTimeout(function() {
+    const { progress, pages, container, progressNum } = dom
 
-  // update hash
-  let hash = location.hash
-  hash = reg_hash.test(hash) ? hash.replace(/anyppt=\d+/, 'anyppt=' + current) : hash + '?anyppt=' + current
-  location.hash = hash
+    const showone = container.querySelector('.anyppt-page-show')
+    showone && showone.classList.remove('anyppt-page-show')
 
-  const showone = container.querySelector('.anyppt-page-show')
-  showone && showone.classList.remove('anyppt-page-show')
+    const ndCurrent = pages[current]
+    ndCurrent.classList.add('anyppt-page-show')
+    ndCurrent.click()
 
-  const ndCurrent = pages[current]
-  ndCurrent.classList.add('anyppt-page-show')
+    // current head
+    const ndCurrentHd = pages[ndCurrent.dataset.anypptHead]
+    // no currenthead or current head has no 'current-head' classname
+    if (!ndCurrentHd || !ndCurrentHd.classList.contains('current-head')) {
+      const prevHd = container.querySelector('.current-head')
+      prevHd && prevHd.classList.remove('current-head')
+      ndCurrentHd && ndCurrentHd.classList.add('current-head')
+    }
 
-  // current head
-  const ndCurrentHd = pages[ndCurrent.dataset.anypptHead]
-  // no currenthead or current head has no 'current-head' classname
-  if (!ndCurrentHd || !ndCurrentHd.classList.contains('current-head')) {
-    const prevHd = container.querySelector('.current-head')
-    prevHd && prevHd.classList.remove('current-head')
-    ndCurrentHd && ndCurrentHd.classList.add('current-head')
-  }
-
-  progress.style.width = (current + 1) / pagesNum * 100 + '%'
-  progressNum.innerHTML = `${current + 1} / ${pagesNum}`
+    progress.style.width = (current + 1) / pagesNum * 100 + '%'
+    progressNum.innerHTML = `${current + 1} / ${pagesNum}`
+  }, 100)
 }
 
 function dispose() {}

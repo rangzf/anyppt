@@ -1,5 +1,9 @@
 .anyppt {
   color: #fff;
+  background: #222;
+  // * {
+  //   color: #fff;
+  // }
   .anyppt-progress {
     color: #e7ad52;
     .anyppt-progress-inner {
@@ -12,7 +16,7 @@
   }
   a {
     color: #e7ad52;
-    transition: color .3s;
+    transition: color 0.3s;
     &:hover {
       color: #f9a31a;
     }

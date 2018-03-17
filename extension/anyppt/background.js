@@ -1,7 +1,7 @@
 chrome.browserAction.onClicked.addListener(tab => {
   getCurrentTab().then(tab => {
     chrome.tabs.sendMessage(tab.id, {
-      type: 'anyppt-init'
+      type: 'anyppt-show'
     })
   })
 })

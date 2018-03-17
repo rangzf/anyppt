@@ -15,17 +15,21 @@ ppt.show()
 ppt.hide()
 
 // refresh ppt if article updated asynchronously, e.g. in SPA
-ppt.refresh().show
+ppt.refresh().show()
 
 // chained calls
 window.anyppt.create().show().hide().refresh().show()
 ```
 
+## Chrome plugin
+
+Drag `extension/anyppt.crx` to `chrome://extensions/`
+
 ## Features
 
-* Reorganize each ppt page according to the number of article paragraphs
+* Assign each ppt page according to the words number of article paragraphs
 * Chrome extension v0.0.1 in `extension/anyppt.crx`, drag it to `chrome://extensions/` in chrome
-* Keyboard ↑ ↓ ← → to control
+* Keyboard ← → to control
 * ESC to exit ppt modal
 * UMD support
 
